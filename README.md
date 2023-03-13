@@ -1,0 +1,143 @@
+# Neural Word Sense Disambiguation Toolkit: implementation in Python of https://github.com/getalp/disambiguate
+
+See the original code on this github repository : https://github.com/getalp/disambiguate
+
+## Table of Contents
+
+* [Requirements](#requirements)
+* [Sense mappings](#sense-mappings)
+* [Pipeline](#pipeline)
+   * [Run the all pipeline](#run-the-all-pipeline)
+   * [Preparing the data](#preparing-the-data)
+   * [Training a WSD model](#training-a-wsd-model)
+   * [Evaluating a WSD model](#evaluating-a-wsd-model)
+   * [Disambiguate a text](#disambiguate-a-text)
+* [Links](#links)
+
+## Requirements
+
+1. Create a conda environment with a 3.9 python version.
+
+2. To install nwsd and develop locally:
+```
+git clone https://gricad-gitlab.univ-grenoble-alpes.fr/macairec/nwsd.git
+cd nwsd
+pip install -r requirements.txt
+```
+
+## Sense mappings
+
+Two sense mappings are provided and used in their paper as standalone files in the directory `data/sense_mappings`.
+
+The files consist of 117659 lines (one line by synset): the left-hand ID is the original synset ID, and the right-hand is the ID of the associated group of synsets.
+
+The file `hypernyms_mapping.txt` results from the sense compression method through hypernyms. The exact algorithm that was used is located in the method `getSenseCompressionThroughHypernymsClusters()` of the file `src/utils/WordnetUtils.py`.
+
+The file `all_relations_mapping.txt` results from the method through all relationships. The exact algorithm that was used is located in the method `getSenseCompressionThroughAllRelationsClusters()` of the file `src/utils/WordnetUtils.py`.
+
+## Pipeline
+
+### Run the all pipeline
+
+To run the entire pipeline, which consists of :
+1. Preparing the data
+2. Training a WSD model
+3. Evaluating the trained wsd model
+4. Disambiguate a text
+
+Run the bash script `sh run_pipeline.sh`. Before running it, you have to define the following variables :
+- `SEMCOR_PATH` : path of the SEMCOR data.
+- `WNGT_PATH` : path of the WNGT data.
+- `BERT_PATH` : path of the pretrained BERT embeddings.
+- `TEST_DATA` : path of the test data.
+- `DATA_DIRECTORY` : directory to store the prepared data (will be created if it does not exist).
+- `TARGET_DIRECTORY` : directory to store the WSD model (will be created if it does not exist).
+- `TXT_TO_WSD` : file with text to disambiguate.
+
+### Preparing the data
+
+To prepare the data to train a WSD model, run `python src/NeuralWSDPrepare.py` with the following arguments :
+
+- `--data_path dir` is the path to the directory that will contain the description of the model (files `config.json`, `input_vocabularyX` and `output_vocabularyX`) and the processed training data (files `train` and `dev`)
+- `--train file1` is the list of corpora in UFSAC format used for the training set
+- `--dev file1 file2 fileN` (optional) is the list of corpora in UFSAC format used for the development set
+- `--dev_from_train N` (default `0`) randomly extracts `N` sentences from the training corpus and use it as development corpus
+- `--input_features feature1 featureN` (default `surface_form`) is the list of input features used, as UFSAC attributes. Possible values are, but not limited to, `surface_form`, `lemma`, `pos`, `wn30_key`...
+- `--input_embeddings file1 fileN` (default `null`) is the list of pre-trained embeddings to use for each input feature. Must be the same number of arguments as `input_features`, use special value `null` if you want to train embeddings as part of the model
+- `--input_clear_text True|False` (default `False`) is a list of true/false values (one value for each input feature) indicating if the feature must be used as clear text (e.g. with ELMo/BERT) or as integer values (with classic embeddings). Must be the same number of arguments as `input_features`
+- `--output_features feature1 featureN` (default `wn30_key`) is the list of output features to predict by the model, as UFSAC attributes. Possible values are the same as input features
+- `--lowercase True|False` (default `True`) if you want to enable/disable lowercasing of input
+- `--sense_compression_hypernyms True|False` (default `True`) if you want to enable/disable the sense vocabulary compression through the hypernym/hyponym relationships.
+- `--sense_compression_file file` if you want to use another sense vocabulary compression mapping.
+- `--add_monosemics True|False` (default `False`) if you want to consider all monosemic words annotated with their unique sense tag (even if they are not initially annotated)
+- `--remove_monosemics TrueFalse` (default `False`) if you want to remove the tag of all monosemic words
+- `--remove_duplicates True|False` (default `True`) if you want to remove duplicate sentences from the training set (output features are merged) 
+
+### Training a WSD model
+
+To train a WSD model, run `python src/train.py` with the following arguments :
+
+- `--data_path dir` is the path to the directory generated by `prepare_data.sh` (must contains the files describing the model and the processed training data)
+- `--model_path dir` is the path where the trained model weights and the training info will be saved
+- `--batch_size N` (default `100`) is the batch size
+- `--ensemble_count N` (default `8`) is the number of different model to train
+- `--epoch_count N` (default `100`) is the number of epoch
+- `--eval_frequency N` (default `4000`) is the number of batch to process before evaluating the model on the development set. The count resets every epoch, and an eveluation is also performed at the end of every epoch
+- `--update_frequency N` (default `1`) is the number of batch to accumulate before backpropagating (if you want to accumulate the gradient of several batches)
+- `--lr N` (default `0.0001`) is the initial learning rate of the optimizer (Adam)
+- `--input_embeddings_size N` (default `300`) is the size of input embeddings (if not using pre-trained embeddings, BERT nor ELMo)
+- `--input_elmo_model model_name` is the name of the ELMo model to use (one of `small`, `medium` or `original`), it will be downloaded automatically.
+- `--input_bert_model model_name` is the name of the BERT model to use (of the form `bert-{base,large}-(multilingual-)(un)cased`), it will be downloaded automatically.
+- `--input_auto_path name_or_path` is the name of any language model supported by the [transformer](https://github.com/huggingface/transformers) library, or the path to a local model supported by the library
+- `--input_auto_model model` is optionally used jointly with `--input_auto_path` if there is an ambiguity in automatically resolving the auto model's type. `MODEL` must be one of `camembert`, `flaubert` or `xlm`.
+- `--encoder_type encoder` (default `lstm`) is one of `lstm` or `transformer`.
+- `--encoder_lstm_hidden_size N` (default `1000`)
+- `--encoder_lstm_layers N` (default `1`)
+- `--encoder_lstm_dropout N` (default `0.5`)
+- `--encoder_transformer_hidden_size N` (default `512`)
+- `--encoder_transformer_layers N` (default `6`)
+- `--encoder_transformer_heads N` (default `8`)
+- `--encoder_transformer_positional_encoding True|False` (default `True`)
+- `--encoder_transformer_dropout N` (default `0.1`)
+- `--reset True|False` (default `False`) if you do not want to resume a previous training. Be careful as it will effectively resets the training state and the model weights saved in the `--model_path`
+
+### Evaluating a WSD model
+
+To evaluate a WSD model, run `python src/NeuralWSDEvaluate.py` with the following arguments :
+
+- `--data_path dir` is the path to the directory generated by `prepare_data.sh` (must contains the files describing the model and the processed training data)
+- `--weights name` is the path where the trained model weights and the training info are saved
+- `--corpus file1 fileN` is the list of corpora used for the test set 
+- `--lowercase True|False` (default `True`) if the input is lowercased
+- `--sense_compression_hypernyms True|False` (default `True`) 
+- `--sense_compression_instance_hypernyms True|False` (default `False`)
+- `--sense_compression_antonyms True|False` (default `False`)
+- `--sense_compression_file file`
+- `--filter_lemma True|False` (default `True`)
+- `--clear_text True|False` (default `False`)
+- `--batch_size N` (default `1`)
+
+### Disambiguate a text
+
+To disambiguate a text, run `python src/NeuralWSDDecode.py < stdin > stdout` with the following arguments :
+
+- `--data_path dir` is the path to the directory generated by `prepare_data.sh` (must contains the files describing the model and the processed training data)
+- `--weights name` is the path where the trained model weights and the training info are saved
+- `--lowercase True|False` (default `True`) if the input is lowercased
+- `--sense_compression_hypernyms True|False` (default `True`) 
+- `--sense_compression_instance_hypernyms True|False` (default `False`)
+- `--sense_compression_antonyms True|False` (default `False`)
+- `--sense_compression_file file`
+- `--filter_lemma True|False` (default `True`)
+- `--clear_text True|False` (default `True`)
+- `--batch_size N` (default `1`)
+- `--truncate_max_length N` (default `150`)
+- `--mfs_backoff True|False` (default `True`)
+
+## Links
+
+https://github.com/getalp/disambiguate 
+
+https://arxiv.org/abs/1905.05677
+
+

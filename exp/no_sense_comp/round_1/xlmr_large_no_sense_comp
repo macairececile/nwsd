@@ -1,0 +1,184 @@
+Folder /gpfsscratch/rech/czj/uef37or/wsd/data_no_sense_comp already exists.
+Folder /gpfsscratch/rech/czj/uef37or/wsd/xlmr_large_no_sense_comp created.
+---------- Preparation of the data done, starting the training ----------
+Some weights of the model checkpoint at /gpfsstore/rech/czj/uef37or/pretrained_models/xlm-roberta-large were not used when initializing XLMRobertaModel: ['lm_head.dense.bias', 'lm_head.dense.weight', 'lm_head.layer_norm.bias', 'lm_head.layer_norm.weight', 'lm_head.bias', 'lm_head.decoder.weight']
+- This IS expected if you are initializing XLMRobertaModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing XLMRobertaModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Command line arguments:
+{'adam_beta1': 0.9,
+ 'adam_beta2': 0.999,
+ 'adam_eps': 1e-08,
+ 'batch_size': 100,
+ 'data_path': '/gpfsscratch/rech/czj/uef37or/wsd/data_no_sense_comp',
+ 'encoder_lstm_dropout': None,
+ 'encoder_lstm_hidden_size': None,
+ 'encoder_lstm_layers': None,
+ 'encoder_transformer_dropout': 0.1,
+ 'encoder_transformer_heads': 16,
+ 'encoder_transformer_hidden_size': 1024,
+ 'encoder_transformer_layers': 24,
+ 'encoder_transformer_positional_encoding': False,
+ 'encoder_transformer_scale_embeddings': False,
+ 'encoder_type': 'transformer',
+ 'ensemble_count': 1,
+ 'epoch_count': 50,
+ 'eval_frequency': 9999999,
+ 'input_auto_model': ['xlm-roberta'],
+ 'input_auto_path': ['/gpfsstore/rech/czj/uef37or/pretrained_models/xlm-roberta-large'],
+ 'input_bert_model': None,
+ 'input_dropout_rate': None,
+ 'input_elmo_model': None,
+ 'input_embeddings_size': None,
+ 'input_embeddings_tokenize_model': None,
+ 'input_linear_size': None,
+ 'input_resize': None,
+ 'input_word_dropout_rate': None,
+ 'lr_scheduler': 'fixed',
+ 'lr_scheduler_fixed_lr': 0.0001,
+ 'lr_scheduler_noam_model_size': 512,
+ 'lr_scheduler_noam_warmup': 6000,
+ 'model_path': '/gpfsscratch/rech/czj/uef37or/wsd/xlmr_large_no_sense_comp',
+ 'optimizer': 'adam',
+ 'reset': False,
+ 'save_best_loss': False,
+ 'save_every_epoch': False,
+ 'token_per_batch': 2000,
+ 'update_frequency': 4,
+ 'warmup_batch_count': 10}
+Loading config and embeddings
+GPU is available: True
+Creating model
+Random seed is 12110148747515838207
+Config is: 
+{'decoder_translation_scale_embeddings': True,
+ 'decoder_translation_share_embeddings': False,
+ 'decoder_translation_share_encoder_embeddings': False,
+ 'decoder_translation_tokenizer_bert': None,
+ 'decoder_translation_transformer_dropout': 0.1,
+ 'decoder_translation_transformer_heads': 8,
+ 'decoder_translation_transformer_hidden_size': 512,
+ 'decoder_translation_transformer_layers': 6,
+ 'encoder_lstm_dropout': 0.5,
+ 'encoder_lstm_hidden_size': 1000,
+ 'encoder_lstm_layers': 1,
+ 'encoder_transformer_dropout': 0.1,
+ 'encoder_transformer_heads': 16,
+ 'encoder_transformer_hidden_size': 1024,
+ 'encoder_transformer_layers': 24,
+ 'encoder_transformer_positional_encoding': False,
+ 'encoder_transformer_scale_embeddings': False,
+ 'encoder_type': 'transformer',
+ 'input_auto_model': ['xlm-roberta'],
+ 'input_auto_path': ['/gpfsstore/rech/czj/uef37or/pretrained_models/xlm-roberta-large'],
+ 'input_bert_path': [None],
+ 'input_dropout_rate': None,
+ 'input_elmo_path': [None],
+ 'input_embeddings_size': [1024],
+ 'input_embeddings_tokenize_model': [None],
+ 'input_linear_size': None,
+ 'input_resize': [None],
+ 'input_word_dropout_rate': None}
+Number of parameters (total): 779.55M
+Number of parameters (learned): 219.66M
+Warming up on 10 batches
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/train.py", line 100, in <module>
+    main()
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/train.py", line 96, in main
+    trainer.train()
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/trainer.py", line 172, in train
+    model.train_on_batch(batch_x, batch_y, batch_tt)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/model.py", line 96, in train_on_batch
+    total_loss.backward()
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/_tensor.py", line 307, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph, inputs=inputs)
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/autograd/__init__.py", line 154, in backward
+    Variable._execution_engine.run_backward(
+RuntimeError: CUDA out of memory. Tried to allocate 1.99 GiB (GPU 0; 31.74 GiB total capacity; 28.42 GiB already allocated; 91.38 MiB free; 30.28 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+---------- Training done, starting the evaluation ----------
+
+------ Evaluate the score of an ensemble of models ------
+Evaluate on corpus /gpfswork/rech/czj/uef37or/nwsd/data/corpora/semeval2013task12.fr.xml
+Evaluate without backoff 
+---------------
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 127, in disambiguate_fixed_sentence_batch
+    self.disambiguate_no_catch(sentences, sense_tag)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 123, in disambiguate_no_catch
+    self.read_predict_output(sentences, sense_tag)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 194, in read_predict_output
+    lines = self.run_predict(self.to_predict).splitlines()
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 58, in run_predict
+    return predicter.predict(to_predict)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/predicter.py", line 36, in predict
+    ensemble = self.create_ensemble(config, self.ensemble_weights_path)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/predicter.py", line 77, in create_ensemble
+    ensemble[i].load_model_weights(ensemble_weights_paths[i])
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/model.py", line 61, in load_model_weights
+    save = torch.load(file_path, map_location=str(default_device))
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/serialization.py", line 594, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/gpfsscratch/rech/czj/uef37or/wsd/xlmr_large_no_sense_comp/model_weights_wsd0'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/NeuralWSDEvaluate.py", line 139, in <module>
+    NeuralWSDEvaluate().main()
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/NeuralWSDEvaluate.py", line 74, in main
+    self.evaluate_ensemble()
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/NeuralWSDEvaluate.py", line 92, in evaluate_ensemble
+    self.evaluator.evaluate(neural_disambiguator, test_corpus, "wn30_key", self.wn)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/evaluation/WSDEvaluator.py", line 20, in evaluate
+    return self.evaluate3(disambiguator, corpus, sense_annotation_tag, wordnet)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/evaluation/WSDEvaluator.py", line 40, in evaluate3
+    disambiguator.disambiguate(document, "wsd_test")
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 115, in disambiguate
+    self.disambiguate_dynamic_sentence_batch(sentences, new_sense_tags)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 119, in disambiguate_dynamic_sentence_batch
+    self.disambiguate_fixed_sentence_batch(sentences, new_sense_tags)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 129, in disambiguate_fixed_sentence_batch
+    raise RuntimeError(e)
+RuntimeError: [Errno 2] No such file or directory: '/gpfsscratch/rech/czj/uef37or/wsd/xlmr_large_no_sense_comp/model_weights_wsd0'
+---------- Evaluation done, starting the disambiguation of pictos ----------
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 127, in disambiguate_fixed_sentence_batch
+    self.disambiguate_no_catch(sentences, sense_tag)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 123, in disambiguate_no_catch
+    self.read_predict_output(sentences, sense_tag)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 194, in read_predict_output
+    lines = self.run_predict(self.to_predict).splitlines()
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 58, in run_predict
+    return predicter.predict(to_predict)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/predicter.py", line 36, in predict
+    ensemble = self.create_ensemble(config, self.ensemble_weights_path)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/predicter.py", line 77, in create_ensemble
+    ensemble[i].load_model_weights(ensemble_weights_paths[i])
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/model.py", line 61, in load_model_weights
+    save = torch.load(file_path, map_location=str(default_device))
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/serialization.py", line 594, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/serialization.py", line 230, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/gpfswork/rech/czj/uef37or/anaconda3/envs/wsd/lib/python3.9/site-packages/torch/serialization.py", line 211, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/gpfsscratch/rech/czj/uef37or/wsd/xlmr_large_no_sense_comp/model_weights_wsd0'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/NeuralWSDDecodePictos.py", line 149, in <module>
+    NeuralWSDDecode().main()
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/NeuralWSDDecodePictos.py", line 124, in main
+    self.decode_sentence_batch(sentences)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/NeuralWSDDecodePictos.py", line 128, in decode_sentence_batch
+    self.neural_disambiguator.disambiguate_dynamic_sentence_batch(sentences, "wsd_test")
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 119, in disambiguate_dynamic_sentence_batch
+    self.disambiguate_fixed_sentence_batch(sentences, new_sense_tags)
+  File "/gpfsdswork/projects/rech/czj/uef37or/nwsd/src/method/neural/NeuralDisambiguator.py", line 129, in disambiguate_fixed_sentence_batch
+    raise RuntimeError(e)
+RuntimeError: [Errno 2] No such file or directory: '/gpfsscratch/rech/czj/uef37or/wsd/xlmr_large_no_sense_comp/model_weights_wsd0'
